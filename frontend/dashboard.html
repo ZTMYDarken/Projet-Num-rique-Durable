@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tableau de bord — GreenTasks</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div class="inner">
+    <a href="index.html" class="logo">🌿 GreenTasks</a>
+    <div class="nav-right">
+      <span id="hdr-user" style="color:rgba(255,255,255,.75)"></span>
+      <button onclick="openProfilModal()" class="btn btn-secondary"
+        style="color:#fff;border-color:rgba(255,255,255,.4);font-size:.82rem;padding:.3rem .75rem">
+        ✏️ Mon profil
+      </button>
+      <button onclick="logout()" class="btn btn-secondary"
+        style="color:#fff;border-color:rgba(255,255,255,.4);font-size:.82rem;padding:.3rem .75rem">
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ VUE ÉLÈVE ════════════════════════════════════════════════ -->
+<main id="view-student" class="hidden">
+  <div class="wrap">
+    <h1>Mes tâches</h1>
+
+    <!-- Alerte pas de groupe -->
+    <div id="no-group-alert" class="alert alert-warn hidden">
+      ⚠️ <strong>Demandez à votre professeur de vous ajouter à un groupe.</strong>
+      Vous ne pouvez pas créer ni voir vos tâches tant que vous n'êtes pas rattaché à un groupe.
+    </div>
+
+    <!-- Formulaire nouvelle tâche (masqué si pas de groupe) -->
+    <div id="task-form-wrap" class="hidden">
+      <div class="card">
+        <h2>Nouvelle tâche</h2>
+        <div id="task-form-msg" class="hidden" style="padding:.5rem .75rem;border-radius:var(--r);margin-bottom:.75rem;font-size:.88rem;font-weight:500"></div>
+        <form id="form-task" autocomplete="off">
+          <div class="form-group">
+            <label for="t-title">Titre *</label>
+            <input type="text" id="t-title" required maxlength="100" placeholder="Ex : Réviser le chapitre 4">
+          </div>
+          <div class="form-group">
+            <label for="t-desc">Description</label>
+            <textarea id="t-desc" rows="2" maxlength="500" placeholder="Détails optionnels…"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="t-status">Statut</label>
+              <select id="t-status">
+                <option value="todo">À faire</option>
+                <option value="doing">En cours</option>
+                <option value="done">Terminé</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="t-due">Échéance</label>
+              <input type="date" id="t-due">
+            </div>
+          </div>
+          <p id="t-err" class="err hidden"></p>
+          <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+      </div>
+
+      <!-- Filtres -->
+      <div class="filters">
+        <button class="btn-f active" data-s="">Toutes</button>
+        <button class="btn-f" data-s="todo">À faire</button>
+        <button class="btn-f" data-s="doing">En cours</button>
+        <button class="btn-f" data-s="done">Terminées</button>
+      </div>
+
+      <!-- Liste des tâches -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Titre</th><th>Statut</th><th>Échéance</th><th>Avis prof</th><th></th></tr>
+            </thead>
+            <tbody id="tasks-body">
+              <tr><td colspan="5" class="muted" style="padding:1.2rem">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="pag-student" class="pag"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ VUE ENSEIGNANT ══════════════════════════════════════════ -->
+<main id="view-teacher" class="hidden">
+  <div class="wrap">
+    <h1>Mes groupes</h1>
+
+    <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button onclick="openAssignModal()" class="btn btn-secondary">👤 Gérer les élèves</button>
+    </div>
+
+    <!-- Créer un groupe -->
+    <div class="card">
+      <h2>Créer un groupe</h2>
+      <form id="form-group" autocomplete="off"
+        style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:180px;margin-bottom:0">
+          <label for="g-name">Nom du groupe *</label>
+          <input type="text" id="g-name" required maxlength="100" placeholder="Ex : Terminale B">
+        </div>
+        <button type="submit" class="btn btn-primary">Créer</button>
+        <p id="g-err" class="err hidden" style="width:100%;margin:0"></p>
+      </form>
+    </div>
+
+    <!-- Liste des groupes -->
+    <div id="groups-list"></div>
+
+    <!-- Détail tâches du groupe -->
+    <div id="group-detail" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h2 id="detail-name"></h2>
+          <button onclick="closeDetail()" class="btn btn-secondary btn-sm">✕ Fermer</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Élève</th><th>Titre</th><th>Statut</th><th>Échéance</th><th>Avis</th><th></th></tr>
+            </thead>
+            <tbody id="group-tasks-body">
+              <tr><td colspan="6" class="muted" style="padding:1.2rem">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="pag-teacher" class="pag"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ VUE ADMIN ═══════════════════════════════════════════════ -->
+<main id="view-admin" class="hidden">
+  <div class="wrap">
+    <h1>Gestion des utilisateurs</h1>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Groupe</th><th>Créé le</th><th></th></tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="6" class="muted" style="padding:1.2rem">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="pag-admin" class="pag"></div>
+  </div>
+</main>
+
+<!-- ══ MODAL : Modifier tâche (élève) ══════════════════════════ -->
+<div id="modal-edit" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h2>Modifier la tâche</h2>
+    <form id="form-edit" autocomplete="off">
+      <input type="hidden" id="e-id">
+      <div class="form-group">
+        <label for="e-title">Titre *</label>
+        <input type="text" id="e-title" required maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="e-desc">Description</label>
+        <textarea id="e-desc" rows="2" maxlength="500"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="e-status">Statut</label>
+          <select id="e-status">
+            <option value="todo">À faire</option>
+            <option value="doing">En cours</option>
+            <option value="done">Terminé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="e-due">Échéance</label>
+          <input type="date" id="e-due">
+        </div>
+      </div>
+      <p id="e-err" class="err hidden"></p>
+      <div class="modal-actions">
+        <button type="button" onclick="closeModal('modal-edit')" class="btn btn-secondary">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL : Feedback enseignant ═════════════════════════════ -->
+<div id="modal-feedback" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h2>Donner un avis sur la tâche</h2>
+    <form id="form-feedback" autocomplete="off">
+      <input type="hidden" id="fb-task-id">
+
+      <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:.75rem">
+        Tâche : <strong id="fb-task-title"></strong>
+        — Élève : <strong id="fb-student-name"></strong>
+      </p>
+
+      <div class="form-group">
+        <label>Avis *</label>
+        <div class="feedback-btns">
+          <button type="button" class="fb-btn approved" data-v="approved">✅ Validée</button>
+          <button type="button" class="fb-btn partial"  data-v="partial">⚠️ Partielle</button>
+          <button type="button" class="fb-btn rejected" data-v="rejected">❌ Refusée</button>
+        </div>
+        <input type="hidden" id="fb-value">
+      </div>
+
+      <div class="form-group">
+        <label for="fb-comment">Commentaire <span class="muted">(optionnel)</span></label>
+        <textarea id="fb-comment" rows="3" maxlength="500"
+          placeholder="Expliquez votre avis à l'élève…"></textarea>
+      </div>
+
+      <p id="fb-err" class="err hidden"></p>
+      <div class="modal-actions">
+        <button type="button" onclick="closeModal('modal-feedback')" class="btn btn-secondary">Annuler</button>
+        <button type="submit" class="btn btn-primary">Envoyer l'avis</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL : Assigner / retirer élève ════════════════════════ -->
+<div id="modal-assign" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h2>Gérer les élèves</h2>
+
+    <!-- Assigner -->
+    <div class="card" style="margin-bottom:.75rem">
+      <h2>Assigner un élève sans groupe</h2>
+      <form id="form-assign" autocomplete="off">
+        <div class="form-group">
+          <label for="a-student">Élève *</label>
+          <select id="a-student" required>
+            <option value="">— Sélectionner —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="a-group">Groupe *</label>
+          <select id="a-group" required>
+            <option value="">— Sélectionner —</option>
+          </select>
+        </div>
+        <p id="a-err" class="err hidden"></p>
+        <button type="submit" class="btn btn-primary btn-sm">Assigner</button>
+      </form>
+    </div>
+
+    <!-- Retirer -->
+    <div class="card">
+      <h2>Retirer un élève de son groupe</h2>
+      <form id="form-remove" autocomplete="off">
+        <div class="form-group">
+          <label for="r-group">Groupe *</label>
+          <select id="r-group" required>
+            <option value="">— Sélectionner un groupe —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="r-student">Élève à retirer *</label>
+          <select id="r-student" required>
+            <option value="">— Choisir le groupe d'abord —</option>
+          </select>
+        </div>
+        <p id="r-err" class="err hidden"></p>
+        <button type="submit" class="btn btn-danger btn-sm">Retirer du groupe</button>
+      </form>
+    </div>
+
+    <div style="text-align:right;margin-top:.5rem">
+      <button onclick="closeModal('modal-assign')" class="btn btn-secondary">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Modifier son nom -->
+<div id="modal-profil" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h2>Modifier mon profil</h2>
+    <form id="form-profil" autocomplete="off">
+      <div class="form-group">
+        <label for="p-nom">Nom complet *</label>
+        <input type="text" id="p-nom" required maxlength="80">
+      </div>
+      <p id="p-err" class="err hidden"></p>
+      <p id="p-ok"  class="ok  hidden"></p>
+      <div class="modal-actions">
+        <button type="button" onclick="closeModal('modal-profil')"
+          class="btn btn-secondary">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══ SCRIPT ══════════════════════════════════════════════════ -->
+<script src="js/main.js"></script>
+<script src="js/student.js"></script>
+<script src="js/teacher.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>

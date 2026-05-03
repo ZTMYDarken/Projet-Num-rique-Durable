@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="GreenTasks — Gestion sobre de tâches scolaires Green IT">
+<title>GreenTasks</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="inner">
+    <a href="index.html" class="logo">🌿 GreenTasks</a>
+    <div class="nav-right">
+      <a href="login.html">Connexion</a>
+      <a href="register.html" class="btn btn-secondary" style="color:#fff;border-color:rgba(255,255,255,.4)">S'inscrire</a>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <h1>Gestion de tâches scolaires écoresponsable</h1>
+    <p>Un outil simple pour que les élèves organisent leur travail et que les enseignants suivent leur progression.</p>
+    <a href="register.html" class="btn btn-primary" style="font-size:1rem;padding:.6rem 1.4rem">Commencer gratuitement</a>
+  </div>
+  <div class="features">
+    <div class="feat"><h2>📋 Tâches</h2><p>Créez et suivez vos tâches par statut au sein de votre groupe.</p></div>
+    <div class="feat"><h2>👥 Groupes</h2><p>L'enseignant crée des groupes, les élèves s'y rattachent à l'inscription.</p></div>
+    <div class="feat"><h2>🌱 Green IT</h2><p>0 image, 0 police externe, mode sombre auto, poids &lt; 50 Ko.</p></div>
+  </div>
+</main>
+<footer><p>GreenTasks — TI616 Numérique Durable · EFREI Paris 2025-2026</p></footer>
+<script>
+  fetch('/api/auth/me').then(r => { if (r.ok) window.location.href = 'dashboard.html'; });
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Connexion — GreenTasks</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="inner">
+    <a href="index.html" class="logo">🌿 GreenTasks</a>
+  </div>
+</header>
+<main>
+  <div class="auth">
+    <div class="card">
+      <h1>Connexion</h1>
+      <form id="form-login">
+        <div class="form-group">
+          <label for="email">Adresse e-mail</label>
+          <input type="email" id="email" autocomplete="email" required placeholder="exemple@mail.fr">
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" autocomplete="current-password" required>
+        </div>
+        <p id="msg" class="err hidden"></p>
+        <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
+      </form>
+    </div>
+    <p class="auth-foot">Pas encore de compte ? <a href="register.html">S'inscrire</a></p>
+  </div>
+</main>
+<footer><p>GreenTasks — TI616 EFREI Paris 2025-2026</p></footer>
+<script>
+document.getElementById('form-login').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  msg.classList.add('hidden');
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:    document.getElementById('email').value,
+        password: document.getElementById('password').value
+      })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      window.location.href = 'dashboard.html';
+    } else {
+      msg.textContent = data.error;
+      msg.classList.remove('hidden');
+    }
+  } catch {
+    msg.textContent = 'Erreur réseau, réessayez.';
+    msg.classList.remove('hidden');
+  }
+});
+</script>
+</body>
+</html>
